@@ -1,0 +1,37 @@
+#!/bin/sh
+
+set -e
+
+if [ "$#" -ne 1 ]; then
+        echo "Provide instance name"
+        exit 1
+fi
+
+base="/var/lib/tomcat8/$1"
+
+for dir in /var/lib/tomcat8 /etc/tomcat8 /var/log/tomcat8 /var/cache/tomcat8; do
+	echo "Creating $dir/$1"
+	mkdir -p "$dir/$1"
+	chown -R tomcat8:tomcat8 "$dir/$1"
+done
+
+chgrp -R adm "/var/log/tomcat8/$1" "/var/cache/tomcat8/$1"
+chmod 750 "/var/log/tomcat8/$1" "/var/cache/tomcat8/$1"
+
+echo "Populating CATALINA_BASE"
+for dir in "$base/lib" "$base/policy" "$base/webapps" "$base/webapps/ROOT"; do
+	echo "  creating $dir"
+	mkdir -p "$dir"
+	chown -R tomcat8:tomcat8 "$dir"
+done
+
+chmod 775 "$base/webapps"
+
+[ ! -e "$base/conf" ] && ln -fs "/etc/tomcat8/$1" "$base/conf"
+[ ! -e "$base/logs" ] && ln -rfs "/var/log/tomcat8/$1" "$base/logs"
+[ ! -e "$base/work" ] && ln -rfs "/var/cache/tomcat8/$1" "$base/work"
+
+cp -n /var/lib/tomcat8/policy/catalina.policy "$base/policy"
+cp -nr /usr/share/tomcat8-root/default_root/* "$base/webapps/ROOT"
+
+echo "Now YOU need to fill /etc/tomcat8/$1"
