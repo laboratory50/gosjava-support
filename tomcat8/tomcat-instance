@@ -15,6 +15,9 @@ for dir in /var/lib/tomcat8 /etc/tomcat8 /var/log/tomcat8 /var/cache/tomcat8; do
 	chown -R tomcat8:tomcat8 "$dir/$1"
 done
 
+chown root:root "/var/lib/tomcat8/$1"
+chmod 0755 "/var/lib/tomcat8/$1"
+
 chgrp -R adm "/var/log/tomcat8/$1" "/var/cache/tomcat8/$1"
 chmod 750 "/var/log/tomcat8/$1" "/var/cache/tomcat8/$1"
 
